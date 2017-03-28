@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:web="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+  <display-name>hrwork</display-name>
+
+<!-- openam filter
+ -->
+  <filter>
+    <description>OpenAM Policy Agent Filter</description>
+    <display-name>Agent</display-name>
+    <filter-name>Agent</filter-name>
+    <filter-class>com.sun.identity.agents.filter.AmAgentFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>Agent</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>ERROR</dispatcher>
+  </filter-mapping>
+    
+  <servlet>
+    <servlet-name>UploadFileServlet</servlet-name>
+    <servlet-class>com.gtel.hrworks.web.UploadFileServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UploadFileServlet</servlet-name>
+    <url-pattern>/uploadfile</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>ActionServlet</servlet-name>
+    <servlet-class>com.gtel.hrworks.web.ActionServlet</servlet-class>
+    <init-param>
+      <param-name>/getemployeerecords</param-name>
+      <param-value>com.gtel.hrworks.message.HrWorksEmployeeRecordGetRequest</param-value>
+    </init-param>
+    <init-param>
+      <param-name>/getreport</param-name>
+      <param-value>com.gtel.hrworks.message.ReportGetRequest</param-value>
+    </init-param>
+    <init-param>
+      <param-name>/getuserinfo</param-name>
+      <param-value>com.gtel.hrworks.message.UserGetRequest</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ActionServlet</servlet-name>
+    <url-pattern>/getemployeerecords</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ActionServlet</servlet-name>
+    <url-pattern>/getreport</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ActionServlet</servlet-name>
+    <url-pattern>/getuserinfo</url-pattern>
+  </servlet-mapping>
+</web-app>

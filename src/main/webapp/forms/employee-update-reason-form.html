@@ -1,0 +1,210 @@
+<form cam-form role="form" >
+  <script cam-script type="text/form-script">
+    var variableManager = camForm.variableManager;
+	$scope.options = ['Chưa chọn lý do!','Lý do cá nhân',
+					'Quên XNVT','Nghỉ có hưởng lương chưa nộp đơn xin nghỉ',
+					'Nghỉ không hưởng lương chưa nộp đơn xin nghỉ',
+					'Đi công tác buổi sáng','Đi công tác buổi sáng quên XNVT',
+					'Đi công tác chưa nộp giấy phê duyệt','Đi đào tạo chưa nộp giấy phê duyệt',
+					'Lý do khác'];
+
+	$scope.options2 = ['Chưa chọn lý do!','Lý do cá nhân',
+					'Quên XNVT','Nghỉ có hưởng lương chưa nộp đơn xin nghỉ',
+					'Nghỉ không hưởng lương chưa nộp đơn xin nghỉ',
+					'Đi công tác chưa nộp giấy phê duyệt','Đi đào tạo chưa nộp giấy phê duyệt',
+					'Lý do khác'];
+
+	// debugger;
+	inject([ '$scope', '$window', '$document', function($scope, $window, $document) {
+      camForm.on('form-loaded', function() {
+		variableManager.fetchVariable('employee');
+		$scope.window = $window;
+		$scope.document = $document;
+    	});
+    }]);
+ 
+	camForm.on('variables-restored', function() {
+        $scope.employee = camForm.variableManager.variable('employee').value;
+
+	// when manager reject reason
+		if($scope.employee.come_reason == null)
+			$scope.employee.come_reason = 'Chưa chọn lý do!';
+		if($scope.employee.leave_reason == null)
+			$scope.employee.leave_reason = 'Chưa chọn lý do!';
+
+		$scope.come_other_reason();
+		$scope.leave_other_reason();
+
+		$scope.come_other_reason_disabled();
+		$scope.leave_other_reason_disabled();
+
+		//var employee = $scope.employee;
+		//console.log($scope.getTimeValue(employee.come))
+		//console.log(isNaN($scope.getTimeValue(employee.come)));
+    });
+
+	camForm.on('store', function() {
+        camForm.variableManager.variableValue('employee', $scope.employee);
+    });
+
+	$scope.come_other_reason = function() {
+		console.log($scope.employee.come_reason);
+		if($scope.employee.come_reason == 'Lý do khác'){
+			$scope.come_other_reason_val = false;
+		} else {
+			$scope.come_other_reason_val = true;
+			$scope.employee.come_other_text = null;
+		}
+	}
+
+	$scope.leave_other_reason = function() {
+		console.log($scope.employee.leave_reason);
+		if($scope.employee.leave_reason == 'Lý do khác'){
+			$scope.leave_other_reason_val = false;
+		} else {
+			$scope.leave_other_reason_val = true;
+			$scope.employee.leave_other_text = null;
+		}
+	}
+
+	$scope.come_other_reason_disabled = function() {
+		var employee = $scope.employee;
+		if(($scope.getTimeValue(employee.come) > ($scope.getTimeValue(employee.come_default) + 15)) || isNaN($scope.getTimeValue(employee.come)) ) {
+		} else { 
+			$scope.come_other_reason_disabled_val = true;
+			}
+	}
+
+	$scope.leave_other_reason_disabled = function() {
+		var employee = $scope.employee;
+		if(($scope.getTimeValue(employee.leave) < $scope.getTimeValue(employee.leave_default)) || isNaN($scope.getTimeValue(employee.leave)) ) {
+		} else { 
+			$scope.leave_other_reason_disabled_val = true;
+			}
+	}
+
+	$scope.doGreeting = function(greeting) {
+       $scope.window.alert(greeting);
+      };
+
+	camForm.on('submit', function(evt) {
+		if($scope.formValidate() == true) {
+			var r = $scope.window.confirm("Xác nhận gửi lý do");
+			if (r == true) {
+				$scope.employee.status = 'Chờ quản lý phê duyệt';
+    			console.log('You pressed OK!');
+			} else {
+    			console.log('You pressed Cancel!');
+				evt.submitPrevented = true;
+			}
+ 			delete $scope.employee.$$hashKey;
+		} else {
+			evt.submitPrevented = true;
+		}
+    });
+
+	$scope.formValidate = function() {
+		var employee = $scope.employee;
+		if(($scope.getTimeValue(employee.come) > ($scope.getTimeValue(employee.come_default) + 15)) || isNaN($scope.getTimeValue(employee.come)) ) {
+			if(employee.come_reason == 'Chưa chọn lý do!') {
+				 $scope.window.alert('Chưa chọn lý do đi muộn!');
+				return false;
+			}
+
+		}
+		if(($scope.getTimeValue(employee.leave) < $scope.getTimeValue(employee.leave_default)) || isNaN($scope.getTimeValue(employee.leave)) ) {
+			if(employee.leave_reason == 'Chưa chọn lý do!') {
+				 $scope.window.alert('Chưa chọn lý do về sớm!');
+				return false;
+			}
+
+		}
+		return true;
+	}
+
+	$scope.getTimeValue = function(time) {
+	// example time = "8:05"
+		var arr = time.split(":");
+		return ($scope.stringToNumber(arr[0])*60 + $scope.stringToNumber(arr[1]));
+	}
+
+	$scope.stringToNumber = function(string) {
+		var x = string;
+		var n = x.indexOf("0");
+		if(n == 0)
+			x = x.substring(1,2);
+		return parseInt(x)			
+	}
+  </script>
+<fieldset>
+
+<!-- Form Name -->
+<legend>Employee Chose Reason</legend>
+  
+<!-- Text input-->
+<table style="width:100%">
+	  <tr>
+	    <td><div class="form-group" style="padding:0 10px 0 0;">
+			<label for="date">Date</label>
+			<input id="date" name="date" class="form-control" type="text" required ng-model="employee.date" readonly="true"> </div>
+		</div></td>
+	     <td><div class="form-group">
+			<label for="employee_id">Employee ID</label> 
+			<input id="employee_id" name="employee_id" class="form-control" type="text" required ng-model="employee.employee_id" readonly="true"> </div>
+		</div></td>
+	  </tr>
+	</table>
+	<div class="form-group">
+		<label for="employee_name">Employee Name</label> 
+		<input id="employee_name" name="employee_name" class="form-control" type="text" required ng-model="employee.employee_name" readonly="true">
+	</div>
+	<div class="form-group">
+		<label for="dept_name">Department</label>
+		<input id="dept_name" name="dept_name" class="form-control" type="text" required ng-model="employee.dept_name" readonly="true">
+	</div>
+	<table style="width:100%">
+	  <tr>
+	   <td><div class="form-group" style="padding:0 10px 0 0;">
+			<label for="come">Coming Time</label> 
+			<input id="come" name="come" class="form-control" type="text" required ng-model="employee.come" readonly="true">
+		</div></td>
+	    <td><div class="form-group">
+			<label for="come_default">Required Coming Default</label> 
+			<input id="come_default" name="come_default" class="form-control" type="text" required ng-model="employee.come_default" readonly="true">
+		</div></td>
+	  </tr>
+	</table>
+	<div class="form-group">
+		<label for="come_reason">Coming Late Reason</label>
+		<select id="come_reason" name="come_reason" class="form-control"
+			ng-model="employee.come_reason" ng-options="o as o for o in options"  ng-change="come_other_reason()" ng-disabled="come_other_reason_disabled_val">
+		</select>
+	</div>
+	<div  ng-hide="come_other_reason_val">
+		<label for="come_other_text">Enter Your Coming Late Reason</label>
+		<input id="come_other_text" name="come_other_text" class="form-control" type="text" ng-model="employee.come_other_text">
+	</div>
+	<table style="width:100%">
+	  <tr>
+	     <td><div class="form-group" style="padding:0 10px 0 0;">
+			<label for="leave">Leaving Time</label> 
+			<input id="leave" name="leave" class="form-control" type="text" required ng-model="employee.leave" readonly="true">
+		</div></td>
+		<td><div class="form-group">
+			<label for="leave_default">Required Leaving Time</label> 
+			<input id="leave_default" name="leave_default" class="form-control" type="text" required ng-model="employee.leave_default" readonly="true">
+		</div></td>
+	  </tr>
+	</table>
+	<div class="form-group">
+		<label for="leave_reason">Leaving Early Reason</label>
+		<select id="leave_reason" name="leave_reason" class="form-control" 
+			ng-model="employee.leave_reason" ng-options="o as o for o in options2"  ng-change="leave_other_reason()" ng-disabled="leave_other_reason_disabled_val">
+		</select>
+	</div>
+	<div  ng-hide="leave_other_reason_val">
+		<label for="leave_other_text">Enter Your Leaving Early Reason</label>
+		<input id="leave_other_text" name="leave_other_text" class="form-control" type="text"  ng-model="employee.leave_other_text">
+	</div>
+</fieldset>
+</form>

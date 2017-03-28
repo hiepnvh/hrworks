@@ -1,0 +1,59 @@
+<form cam-form role="form" >
+ 	<script cam-script type="text/form-script">
+	$scope.diagramXML = '';
+	$scope.bpmnURL = '';
+	$scope.cockpit = '';
+
+    var variableManager = camForm.variableManager;
+
+    inject([ '$scope', '$http','$document', function($scope, $http, $document) {
+      camForm.on('form-loaded', function() {
+        // use injected $http service for making requests
+
+		var host = 'https://bpm.gmobile.vn';
+		//var host = 'http://localhost:8080';
+		var myKey = 'working-time-checking';
+		$scope.cockpit = host + '/bpm/app/cockpit/default/#/dashboard';
+		//$scope.cockpit = host + '/camunda/app/cockpit/default/#/dashboard';
+
+		$http.get(host+'/engine-rest/process-definition/key/'+myKey+'/xml').
+        success(function(data) {
+			$scope.diagramXML =    data.bpmn20Xml;       
+        });
+
+		$http.get(host+'/engine-rest/process-definition/key/'+myKey).
+        success(function(data) {
+
+			var deploymentId = data.deploymentId;
+			var resource = data.resource;
+
+			$scope.bpmnURL = host+ '/bpm/app/cockpit/default/#/repository?deployment='+deploymentId+'&resourceName='+resource;
+			//$scope.bpmnURL = host+ '/camunda/app/cockpit/default/#/repository?deployment='+deploymentId+'&resourceName='+resource;       
+        });
+
+      });
+    }]);
+
+
+  </script>
+  <div class="form-group">
+
+    <label for="file">Chọn file để tải lên</label>
+
+    <input type="file" cam-variable-name="employee_list" cam-variable-type="Bytes" cam-max-filesize="10000000"/>
+
+  </div>
+  <hr/>
+  <h4>Link tham khảo:</h4>
+	<a href={{bpmnURL}} target="_blank"> Quy trình thực hiện (Click vào sơ đồ để xem chi tiết)</a>
+	<br><fieldset><br>
+	<a href={{bpmnURL}} target="_blank">
+		<div cam-widget-bpmn-viewer
+		            diagram-data='diagramXML'
+		            disable-navigation='true'
+		            style="height: 200px;"></div>
+	</a><br>
+	<!-- Form Name -->
+	<a href={{cockpit}} target="_blank"> Các tiến trình đang xử lý </a><br><br>
+	<a href="https://bpm.gmobile.vn/hrwork" target="_blank">Quản lý báo cáo chấm công </a>
+</form>
